@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<title>HACK ID TERMINAL</title>
+<style>
+:root{--bg:#000;--fg:#0f0;--err:#f00;--info:#0ff;--warn:#ff0;}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:'Courier New',monospace;height:100vh;display:flex;flex-direction:column;}
+#loginBox{position:fixed;inset:0;margin:auto;width:300px;background:#000;border:2px solid var(--fg);padding:30px;box-shadow:0 0 20px var(--fg);}
+#loginBox h2{text-align:center;margin-top:0;}
+#loginBox input{width:100%;padding:8px;margin:8px 0;background:#000;border:1px solid var(--fg);color:var(--fg);}
+#loginBox button{width:100%;padding:8px;background:#000;border:1px solid var(--fg);color:var(--fg);cursor:pointer;}
+#loginBox button:hover{background:var(--fg);color:#000;}
+#terminal{display:none;flex:1;flex-direction:column;}
+#header{padding:6px 12px;border-bottom:2px solid var(--fg);}
+#output{flex:1;padding:10px;overflow-y:auto;white-space:pre-wrap;}
+#inputLine{display:flex;border-top:2px solid var(--fg);}
+#inputLine span{padding:6px 10px;}
+#cmd{flex:1;background:var(--bg);border:none;outline:none;color:var(--fg);font-family:inherit;font-size:1em;padding:6px;}
+.blink{animation:blink 1s infinite;}
+@keyframes blink{50%{opacity:0;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginBox">
+  <h2>SYSTEM LOGIN</h2>
+  <input id="user" placeholder="Username" autocomplete="off"/>
+  <input id="pass" type="password" placeholder="Password" autocomplete="off"/>
+  <button onclick="tryLogin()">Login</button>
+  <p id="err" style="color:var(--err);text-align:center;margin-top:10px;"></p>
+  <h4>USERNAME: USER FREE</h4>
+  <h4>PASSWORD: USER FREE</h4>
+</div>
+
+<!-- TERMINAL -->
+<div id="terminal">
+  <div id="header"><span id="title">root@hackid ~</span><span class="blink">_</span></div>
+  <div id="output"></div>
+  <div id="inputLine">
+    <span id="prompt">root@hackid:~# </span>
+    <input id="cmd" autocomplete="off" autofocus/>
+    <time class="input">2:59:59</time>
+  </div>
+</div>
+
+<script>
+/* ===== CONFIG ===== */
+const validUser = "USER FREE";
+const validPass = "USER FREE";
+
+/* ===== LOGIN ===== */
+function tryLogin(){
+  const u=document.getElementById('user').value.trim();
+  const p=document.getElementById('pass').value.trim();
+  if(u===validUser && p===validPass){
+    document.getElementById('loginBox').style.display='none';
+    document.getElementById('terminal').style.display='flex';
+    initTerminal();
+  }else{
+    document.getElementById('err').textContent='Access Denied!';
+  }
+}
+
+/* ===== TERMINAL ===== */
+const output=document.getElementById('output');
+const cmdInput=document.getElementById('cmd');
+let history=[];
+let histIdx=0;
+
+function print(text,color='#0f0'){
+  const div=document.createElement('div');
+  div.style.color=color;
+  div.textContent=text;
+  output.appendChild(div);
+  output.scrollTop=output.scrollHeight;
+}
+
+function typeWriter(text,color='#0f0',speed=30){
+  let i=0;
+  const div=document.createElement('div');
+  div.style.color=color;
+  output.appendChild(div);
+  function tick(){
+    if(i<text.length){
+      div.textContent+=text.charAt(i++);
+      output.scrollTop=output.scrollHeight;
+      setTimeout(tick,speed);
+    }
+  }
+  tick();
+}
+
+function progressBar(ms=50){
+  let w=0;
+  const bar=document.createElement('div');
+  bar.style.width='0%';bar.style.background='#0f0';bar.style.height='16px';
+  output.appendChild(bar);
+  const id=setInterval(()=>{
+    w+=2;bar.style.width=w+'%';
+    if(w>=100)clearInterval(id);
+  },ms);
+}
+
+/* ===== ID DATABASE ===== */
+const idDB={
+  '123456':{nama:'Budi Santoso',alamat:'JL. MERPATI 99',tgl:'1999-01-01',foto:'[ASCII-FOTO-123456]'},
+  '654321':{nama:'Siti Aminah',alamat:'JL. KENARI 12',tgl:'2000-02-02',foto:'[ASCII-FOTO-654321]'},
+  '111111':{nama:'Joko Widodo',alamat:'ISTANA NEGARA',tgl:'1980-06-06',foto:'[ASCII-FOTO-111111]'}
+};
+
+/* ===== INIT ===== */
+function initTerminal(){
+  cmdInput.focus();
+  typeWriter("BOT HACKING VIP BY:SABDA OKTAPIAN ");
+  typeWriter("GUNAKAN BOT INI UNTUK KEBAIKKAN!");
+  typeWriter("BOT HACKING VIP v0.0.1");
+  setTimeout(()=>{ typeWriter("Ketik 'HELP' untuk melihat fitur."); },600);
+}
+
+/* ===== COMMAND HANDLER ===== */
+cmdInput.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    const line=cmdInput.value.trim();
+    print("root@hack id:~# "+line);
+    history.push(line);
+    histIdx=history.length;
+    handleCommand(line);
+    cmdInput.value='';
+  }
+  if(e.key==='ArrowUp'){
+    histIdx=Math.max(0,histIdx-1);
+    cmdInput.value=history[histIdx]||'';
+  }
+  if(e.key==='ArrowDown'){
+    histIdx=Math.min(history.length,histIdx+1);
+    cmdInput.value=history[histIdx]||'';
+  }
+});
+
+function handleCommand(cmd){
+  const [a,b,c]=cmd.split(' ');
+  if(a==='hack'){
+    if(b==='scan' && c){
+      if(idDB[c]){
+        typeWriter(`[+] Target ID ${c} ditemukan!`);
+      }else{
+        typeWriter(`[!] ID ${c} tidak ditemukan.`,'#f00');
+      }0
+    }else if(b==='dump' && c){
+      const d=idDB[c];
+      if(d){
+        typeWriter(`[+] Dumping data ID ${c}...`);
+        setTimeout(()=>{
+          print(`Nama  : ${d.nama}`,'#0ff');
+          print(`Alamat: ${d.alamat}`,'#0ff');
+          print(`Tgl   : ${d.tgl}`,'#0ff');
+          print(`Foto  : ${d.foto}`,'#0ff');
+        },800);
+      }else{
+        typeWriter(`[!] ID ${c} tidak ditemukan.`,'#f00');
+      }
+    }else if(b==='card' && c){
+      const d=idDB[c];
+      if(d){
+        typeWriter(`[+] Generating ID Card for ${c}...`);
+        setTimeout(()=>{
+          print('+------------------------+','#0ff');
+          print(`| ID : ${c.padEnd(20)} |`,'#0ff');
+          print(`| Nama: ${d.nama.padEnd(19)}|`,'#0ff');
+          print(`| Tgl : ${d.tgl.padEnd(19)}|`,'#0ff');
+          print('+------------------------+','#0ff');
+        },800);
+      }else{
+        typeWriter(`[!] ID ${c} tidak ditemukan.`,'#f00');
+      }
+    }else if(b==='brute' && c){
+      typeWriter(`[+] Bruteforce ID ${c}...`);
+      progressBar(40);
+      setTimeout(()=>{ typeWriter(`[+] Password cracked: ${c}1234`); },2500);
+    }else{
+      typeWriter("Usage: hack scan|dump|card|brute|locate <id>");
+    }
+  }else if(cmd==='HELP'){
+    print("Commands:");
+    print("  hack scan <id>   – cek apakah ID ada");
+    print("  hack dump <id>   – lihat data lengkap");
+    print("  hack card <id>   – buat kartu ID (ASCII)");
+    print("  hack brute <id>  – fake bruteforce");
+    print("  clear            – clear screen");
+    print("  exit             – logout");
+    print("  hack locate <id> - lihat lokasi ID");
+  }else if(cmd==='locate'){
+  }else if(cmd==='clear'){
+    output.innerHTML='';
+  }else if(cmd==='exit'){
+    location.reload();
+  }else if(cmd){
+    typeWriter(`sh: ${cmd}: command not found`,'#f00');
+  }
+}
+</script>
+</body>
+</html>
